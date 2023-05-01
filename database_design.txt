@@ -1,0 +1,36 @@
+Database :- 
+    create database startupB;
+    use startupB;
+
+Tables :-
+
+    1]User -
+        create table user(user_id bigint unsigned primary key auto_increment,name varchar(225),email varchar(225),password varchar(255));
+
+    2]Customer -
+        create table customer (customer_no bigint unsigned primary key auto_increment,customer_name varchar(225),address_line_1 varchar(225),address_line_2 varchar(225),city varchar(225),state varchar(225),pin_code int,office_landline_1 varchar(225),office_landline_2 varchar(225),fax varchar(225),mobile varchar(225),email_id varchar(225),website varchar(225),contact_person_1_name varchar(225),contact_person_1_designation varchar(225),contact_person_1_email varchar(225),contact_person_2_name varchar(225),contact_person_2_designation varchar(225),contact_person_2_email varchar(225),mnc boolean, sector varchar(225),tax_GST_no varchar(225),tax_PAN_no varchar(225),tax_CIN varchar(225),user_id bigint unsigned ,foreign key(user_id) references user(user_id));
+
+    3]Supplier -
+        create table supplier(supplier_no bigint unsigned primary key auto_increment,supplier_name varchar(225),address_line_1 varchar(225),address_line_2 varchar(225),city varchar(225),state varchar(225),pin_code int,office_landline_1 varchar(225),office_landline_2 varchar(225),fax varchar(225),mobile varchar(225),email_id varchar(225),website varchar(225),contact_person_1_name varchar(225),contact_person_1_designation varchar(225),contact_person_1_email varchar(225),contact_person_2_name varchar(225),contact_person_2_designation varchar(225),contact_person_2_email varchar(225),mnc boolean, sector varchar(225),tax_GST_no varchar(225),tax_PAN_no varchar(225),tax_CIN varchar(225),bank_account_name varchar(225),bank_name varchar(225),bank_account_no varchar(225),bank_ifsc varchar(225),bank_address varchar(225),user_id bigint unsigned ,foreign key(user_id) references user(user_id));
+
+    4]Supplier_PO :-
+        create table supplier_PO(supplier_po_no varchar(225) primary key,supplier_no bigint unsigned,po_date date,purchase_invoice_no varchar(225),purchase_invoice_date date,date_of_received date,attached_scanned_document varchar(225),user_id bigint unsigned ,foreign key(supplier_no) references supplier(supplier_no),foreign key(user_id) references user(user_id));
+
+    5]Inventory -
+        create table inventory(laptop_serial_no varchar(225) primary key ,laptop_brand varchar(225),series varchar(225),model_name varchar(225),model_id varchar(225),part_no varchar(225),processor varchar(225),processor_generation varchar(225),processor_clock_speed_GHz float,processor_cache varchar(225),system_memory_GB int,expandable_memory_upto_GB int,ram_technology varchar(225),no_of_memory_slots int,memory_slots varchar(225),hdd_capacity_GB int,hdd_type varchar(225),hdd_rpm varchar(225),optical_disk_drive boolean,odd_type varchar(225),screen_size_inch float,screen_resolution varchar(225), screen_quality varchar(225),touch_screen boolean,dedicated_graphic_processor boolean,graphic_processor_memory_capacity_GB int,graphic_processor_make varchar(225),graphic_memory_type varchar(225),internal_mic boolean,speakers boolean,web_camera boolean,touchpad boolean,keyboard boolean,numeric_keyboard boolean,ethernet boolean,wireless_lan boolean,bluetooth boolean,no_usb_2 int,no_usb_3 int,hdmi_port boolean,vga_15_pin_port boolean,dvi_port boolean,multi_card_slot boolean,smart_card_slot boolean,power_adapter_serial_no varchar(225),power_adapter_watt float,power_adapter_rating_volt float,power_adapter_rating_amp float,battery_serial_no varchar(225),battery_backup_hour float,color varchar(225),weight_KG float,dimension varchar(225),os varchar(225),os_lic_coa_no varchar(225),warranty_summary_year float,warranty_start_date date,warranty_till_date date,po_no varchar(225),laptop_condition ENUM('new', 'used','refurbished'),unit_price_inc_tax float,laptop_status ENUM('ready', 'repair'),available boolean,foreign key(po_no) references supplier_PO(supplier_po_no));
+
+    6]DC
+        create table DC(dc_challan_no varchar(225) primary key,dc_date date,c_no bigint unsigned,delivered_by varchar(225),customer_receiver_name varchar(225),attached_scanned_document varchar(225),transport_amount float,note_remark varchar(225),user_id bigint unsigned , foreign key(c_no) references customer(customer_no),foreign key(user_id) references user(user_id));
+
+    7]GNR
+        create table GNR(gnr_challan_no varchar(225) primary key,gnr_date date,c_no bigint unsigned, collection_request_date date,collection_type varchar(225),collected_by varchar(225),collected_date date,attached_scanned_document varchar(225),transport_amount float,note_remark varchar(225),user_id bigint unsigned ,foreign key(c_no) references customer(customer_no),foreign key(user_id) references user(user_id)); 
+
+    8]Activity log
+        create table activity_log(id bigint unsigned primary key auto_increment,activity_type varchar(225),activity_date date,laptop_serial_no varchar(225),po_no varchar(225),dc_challan_no varchar(225),gnr_challan_no varchar(225),user_id bigint unsigned, foreign key(laptop_serial_no) references inventory(laptop_serial_no) on delete cascade, foreign key(po_no) references supplier_PO(supplier_po_no),foreign key(dc_challan_no) references DC(dc_challan_no),foreign key(gnr_challan_no) references GNR(gnr_challan_no),foreign key(user_id) references user(user_id));
+
+    9]DC_device_required :-
+        create table DC_device_required(id bigint unsigned primary key auto_increment,dc_challan_no varchar(225),laptop_serial_no varchar(225), foreign key(dc_challan_no) references DC(dc_challan_no), foreign key(laptop_serial_no) references inventory(laptop_serial_no) on delete cascade);
+
+    10]GNR_device_required :-
+        create table GNR_device_required(id bigint unsigned primary key auto_increment,gnr_challan_no varchar(225),laptop_serial_no varchar(225), foreign key(gnr_challan_no) references GNR(gnr_challan_no), foreign key(laptop_serial_no) references inventory(laptop_serial_no) on delete cascade);
+        
