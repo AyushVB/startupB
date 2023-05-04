@@ -34,6 +34,9 @@ class supplierController{
             else if( !Number.isInteger(req.body.supplier_no)){
                 res.status(200).send({"status":"Failed","message":"supplier no. needs to be a integer...."})
             }
+            else if(typeof(req.body.user_id)!="undefined"){
+                res.status(400).send({"status":"failed","message":"user_id is not updatable value..."})
+            }
             else{
                 supplierService.dynamicFilter({supplier_no:req.body.supplier_no.toString()},(err,results)=>{
                     if(err){

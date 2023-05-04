@@ -34,6 +34,9 @@ class customerController{
             else if( !Number.isInteger(req.body.customer_no)){
                 res.status(200).send({"status":"Failed","message":"customer no. needs to be a integer...."})
             }
+            else if(typeof(req.body.user_id)!="undefined"){
+                res.status(400).send({"status":"failed","message":"user_id is not updatable value..."})
+            }
             else{
                 customerService.dynamicFilter({customer_no:req.body.customer_no.toString()},(err,results)=>{
                     if(err){
@@ -186,7 +189,6 @@ class customerController{
     }
     static dynamicFilter=async (req,res)=>{    
         try {
-            const jsonData = JSON.parse(req.query);
             for (const key in req.query) {
                 if(req.query[key].length==0){
                     res.status(400).send({"status":"failed","message":`Given ${key} is undefined...`})
