@@ -9,6 +9,7 @@ customerRoutes.use('/create',checkUserAuth)
 customerRoutes.use('/update',checkUserAuth)
 customerRoutes.use('/delete',checkUserAuth)
 customerRoutes.use('/getAll',checkUserAuth)
+customerRoutes.use('/getDetailProfile',checkUserAuth)
 customerRoutes.use('/filter',checkUserAuth)
 
 // protected routes
@@ -16,6 +17,7 @@ customerRoutes.post('/create',customerController.create)
 customerRoutes.patch('/update',customerController.update)
 customerRoutes.delete('/delete',customerController.delete)
 customerRoutes.get('/getAll',customerController.getAllProfile)
+customerRoutes.get('/getDetailProfile',customerController.getDetailProfile)
 customerRoutes.get('/filter',customerController.dynamicFilter)
 
 // export

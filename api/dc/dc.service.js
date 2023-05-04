@@ -54,6 +54,27 @@ export default{
             }
         )
     },
+    updateLaptopSNo:(no,oldLaptop_serial_no,newLaptop_serial_no,callBack)=>{
+        const updateQuery = 'UPDATE DC_device_required SET ? WHERE dc_challan_no=? and laptop_serial_no=?;UPDATE inventory SET ? WHERE laptop_serial_no = ?; UPDATE inventory SET ? WHERE laptop_serial_no = ?; ';
+        pool.query(updateQuery, [{laptop_serial_no:newLaptop_serial_no},no,oldLaptop_serial_no,{available:true},oldLaptop_serial_no,{available:false},newLaptop_serial_no], (error, results) => {
+            if(error){
+                return callBack(error);
+            }
+            return callBack(null,results)
+        });             
+    },
+    deleteLaptopSNo :(no,laptop_serial_no,callBack)=>{    
+        pool.query(
+            `UPDATE inventory SET ? WHERE laptop_serial_no=?;delete from DC_device_required where dc_challan_no=? and laptop_serial_no=?`,
+            [{available:true},laptop_serial_no,no,laptop_serial_no],
+            (error,results,fields)=>{
+                if(error){
+                    return callBack(error);
+                }
+                return callBack(null,results)
+            }
+        )
+    },
     getAllDC:callBack=>{
         pool.query(
             `SELECT * FROM DC`,
@@ -134,5 +155,9 @@ export default{
     checkLaptopStatus: async(laptop_serial_no)=>{
         const value=await query( `select laptop_status from inventory where laptop_serial_no=?`,[laptop_serial_no])
         return (value);   
+    },
+    checkLaptopInDC:async(no,laptop_serial_no)=>{
+        const value=await query( `select laptop_status from DC_device_required where dc_challan_no=? and laptop_serial_no=? `,[no,laptop_serial_no])
+        return (value.length>0);   
     }
 }

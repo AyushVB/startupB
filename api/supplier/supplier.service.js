@@ -77,6 +77,18 @@ export default{
             }
         )
     },
+    getDetailProfile :(no,callBack)=>{
+        pool.query(
+            `select * from supplier where supplier_no = ?;SELECT * FROM supplier_PO WHERE supplier_no=?;`,
+            [no,no],
+            (error,results,fields)=>{
+                if(error){
+                    return callBack(error);
+                }
+                return callBack(null,results)
+            }
+        )
+    },
     dynamicFilter:async(data,callBack)=>{
         try {
             let sql = `select * from supplier `;

@@ -208,8 +208,8 @@ class supplierPurchaseOrderController{
                     found=true;                    
                     break;                    
                 }
-                else if(req.body.inventory.laptops[i].laptop_status && !(req.body.inventory.laptops[i].laptop_status=='ready' || req.body.inventory.laptops[i].laptop_status=='repair' )){
-                    res.status(400).send({"status":"Failed","message":"laptop_status needs to be in given set of value....","set of value":"{'ready', 'repair'}","inventory":i+1})                    
+                else if(typeof(req.body.laptop_status)!="undefined" ){
+                    res.status(400).send({"status":"Failed","message":"laptop_status needs not to be given(because ,firstly when we add laptop ,it must be in ready state...)","inventory":i+1})                    
                     found=true;                    
                     break;                    
                 }
@@ -251,7 +251,8 @@ class supplierPurchaseOrderController{
                         console.log(err)
                         return res.status(403).json({
                             success:0,
-                            message:"Database connection error"
+                            message:"Database connection error",
+                            error:err.sqlMessage
                         })
                     }
                     res.status(201).send({"status":"Success","message":"profile created...."})
@@ -264,6 +265,12 @@ class supplierPurchaseOrderController{
     static update=async (req,res)=>{
         if(!req.body.supplier_po_no){
             res.status(200).send({"status":"Failed","message":"supplier purchase order no. needs for identify which supplier purchase order need to be update ...."})
+        }
+        else if(typeof(req.body.user_id)!="undefined"){
+            res.status(200).send({"status":"Failed","message":"user_id is not updatable value..."})
+        }
+        else if(typeof(req.body.no_of_laptops)!="undefined"){
+            res.status(200).send({"status":"Failed","message":"no_of_laptops is not updatable value..."})
         }
         else if(!await supplierPurchaseOrderService.checkPurchaseOrderPresence(req.body.supplier_po_no)){
             res.status(400).send({"status":"failed","message":"Given Supplier Purchase Order no. is not present.."})
@@ -300,7 +307,8 @@ class supplierPurchaseOrderController{
                     console.log(err)
                     return res.status(403).json({
                         success:0,
-                        message:"Database connection error"
+                        message:"Database connection error",
+                        error:err.sqlMessage
                     })
                 }
                 res.status(200).send({"status":"Success","message":"purchase order updated...."})        
@@ -333,7 +341,7 @@ class supplierPurchaseOrderController{
                 return res.status(403).json({
                     success:0,
                     message:"Database connection error",
-                    error:err
+                    error:err.sqlMessage
                 })
             }
             res.status(200).send({"status":"Success","no of results":results.length,"Purchase Orders":results})
@@ -352,7 +360,7 @@ class supplierPurchaseOrderController{
                     return res.status(403).json({
                         success:0,
                         message:"Database connection error",
-                        error:err
+                        error:err.sqlMessage
                     })
                 }
                 results={
@@ -373,12 +381,17 @@ class supplierPurchaseOrderController{
                
     }
     static dynamicFilter=async (req,res)=>{
+        for (const key in req.query) {
+            if(req.query[key].length==0){
+                res.status(400).send({"status":"failed","message":`Given ${key} is undefined...`})
+            }    
+        }
         supplierPurchaseOrderService.dynamicFilter(req.query,(err,results)=>{
             if(err){
                 return res.status(403).json({
                     success:0,
                     message:"Database connection error",
-                    error:err
+                    error:err.sqlMessage
                 })
             }
             res.status(200).send({"status":"Success","no of results":results.length,"results":results})

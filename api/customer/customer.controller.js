@@ -3,6 +3,7 @@ import customerService from './customer.service.js'
 class customerController{
     static create=async (req,res)=>{
         try {
+            const jsonData = JSON.parse(req.body);
             if(req.body.pin_code && !Number.isInteger(req.body.pin_code)){
                 res.status(200).send({"status":"Failed","message":"pincode needs to be a integer...."})
             }
@@ -123,8 +124,69 @@ class customerController{
             res.send({"status":"failed","message":"Unable to get all customer profiles...."})
         }   
     }
+    static getDetailProfile=async (req,res)=>{
+        if(!req.query.customer_no){
+            res.status(200).send({"status":"Failed","message":"customer no. needs for identify for getting detail profile...."})
+        }
+        
+        else{
+            customerService.dynamicFilter({customer_no:req.query.customer_no},(err,results)=>{
+                if(err){
+                    return res.status(500).json({
+                        success:0,
+                        message:"Database connection error"
+                    })
+                }
+                else if(!results.length){
+                    res.status(200).send({"status":"Failed","message":"customer_no is incorrect...."})
+                }
+                else{
+                    customerService.getDetailProfile(req.query.customer_no,(err,results)=>{
+                        if(err){
+                            return res.status(403).json({
+                                success:0,
+                                message:"Database connection error",
+                                error:err
+                            })
+                        }
+                        results={
+                            "customer_no":results[0][0].customer_no,
+                            "customer_name":results[0][0].customer_name,
+                            "address_line_1":results[0][0].address_line_1,
+                            "address_line_2":results[0][0].address_line_2,
+                            "city":results[0][0].city,
+                            "state":results[0][0].state,
+                            "pin_code":results[0][0].pin_code,
+                            "office_landline_1":results[0][0].office_landline_1,
+                            "office_landline_2":results[0][0].office_landline_2,
+                            "fax":results[0][0].fax,
+                            "mobile":results[0][0].mobile,
+                            "email_id":results[0][0].email_id,
+                            "website":results[0][0].website,
+                            "contact_person_1_name":results[0][0].contact_person_1_name,
+                            "contact_person_1_designation":results[0][0].contact_person_1_designation,
+                            "contact_person_1_email":results[0][0].contact_person_1_email,
+                            "contact_person_2_name":results[0][0].contact_person_2_name,
+                            "contact_person_2_designation":results[0][0].contact_person_2_designation,
+                            "contact_person_2_email":results[0][0].contact_person_2_email,
+                            "mnc":results[0][0].mnc,
+                            "sector":results[0][0].sector,
+                            "tax_GST_no":results[0][0].tax_GST_no,
+                            "tax_PAN_no":results[0][0].tax_PAN_no,
+                            "tax_CIN":results[0][0].tax_CIN,
+                            "user_id":results[0][0].user_id,
+                            "DC":results[1],
+                            "GNR":results[2]
+                        }
+                        res.status(200).send({"status":"Success","Detail Customer Profile":results})
+                    })
+                }     
+            })
+        }              
+    }
     static dynamicFilter=async (req,res)=>{    
         try {
+            const jsonData = JSON.parse(req.query);
             for (const key in req.query) {
                 if(req.query[key].length==0){
                     res.status(400).send({"status":"failed","message":`Given ${key} is undefined...`})

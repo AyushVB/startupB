@@ -72,6 +72,18 @@ export default{
             }
         )
     },
+    getDetailProfile :(no,callBack)=>{
+        pool.query(
+            `select * from customer where customer_no = ?;SELECT * FROM DC WHERE c_no=?;SELECT * FROM GNR WHERE c_no=?;`,
+            [no,no,no],
+            (error,results,fields)=>{
+                if(error){
+                    return callBack(error);
+                }
+                return callBack(null,results)
+            }
+        )
+    },
     dynamicFilter:async(data,callBack)=>{
         try {
             let sql = `select * from customer `;
