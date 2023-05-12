@@ -30,8 +30,30 @@ export default{
             )                      
         } catch (error) {
             console.log(error)
-            res.send({"status":"failed","message":"Failed to create supplier purchase order  ...."})                
+            res.send({"status":"failed","message":"Failed to create DC...."})                
         }    
+    },
+    addLaptopSNo:(no,laptop_serial_no,callBack)=>{
+        try {
+            let val=[];
+            let sql =`insert into DC_device_required(dc_challan_no,laptop_serial_no) values (?,?); `
+            val.push(no,laptop_serial_no)
+            sql +=`UPDATE inventory SET ? WHERE laptop_serial_no = ?; `
+            val.push({available:false},laptop_serial_no)
+            pool.query(
+                sql,
+                val,
+                (error,results,fields)=>{
+                    if(error){
+                        return callBack(error);
+                    }
+                    return callBack(null,results)
+                }
+            )    
+        } catch (error) {
+            console.log(error)
+            res.send({"status":"failed","message":"Failed to add laptop in DC...."})
+        }
     },
     updateDC:(no,newValues,callBack)=>{
         const updateQuery = 'UPDATE DC SET ? WHERE dc_challan_no = ?';
@@ -53,15 +75,6 @@ export default{
                 return callBack(null,results)
             }
         )
-    },
-    updateLaptopSNo:(no,oldLaptop_serial_no,newLaptop_serial_no,callBack)=>{
-        const updateQuery = 'UPDATE DC_device_required SET ? WHERE dc_challan_no=? and laptop_serial_no=?;UPDATE inventory SET ? WHERE laptop_serial_no = ?; UPDATE inventory SET ? WHERE laptop_serial_no = ?; ';
-        pool.query(updateQuery, [{laptop_serial_no:newLaptop_serial_no},no,oldLaptop_serial_no,{available:true},oldLaptop_serial_no,{available:false},newLaptop_serial_no], (error, results) => {
-            if(error){
-                return callBack(error);
-            }
-            return callBack(null,results)
-        });             
     },
     deleteLaptopSNo :(no,laptop_serial_no,callBack)=>{    
         pool.query(
@@ -150,7 +163,7 @@ export default{
     },
     checkLaptopAvalability: async(laptop_serial_no)=>{
         const value=await query( `select available from inventory where laptop_serial_no=?`,[laptop_serial_no])
-        return (value[0].available==true);   
+        return (value[0].available);   
     },
     checkLaptopStatus: async(laptop_serial_no)=>{
         const value=await query( `select laptop_status from inventory where laptop_serial_no=?`,[laptop_serial_no])
@@ -159,5 +172,9 @@ export default{
     checkLaptopInDC:async(no,laptop_serial_no)=>{
         const value=await query( `select laptop_status from DC_device_required where dc_challan_no=? and laptop_serial_no=? `,[no,laptop_serial_no])
         return (value.length>0);   
-    }
+    },
+    areAllElementsUnique:async(arr)=> {
+        const uniqueSet = new Set(arr);
+        return uniqueSet.size === arr.length;
+      }
 }

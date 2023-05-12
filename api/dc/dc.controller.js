@@ -1,5 +1,5 @@
 import dcService from "./dc.service.js"
-
+// [dc_challan_no, dc_date ,c_no ,delivered_by ,customer_receiver_name ,attached_scanned_document ,transport_amount ,no_of_laptops ,laptops]
 class dcController{
     static create=async (req,res)=>{
         if(!(req.body.dc_challan_no && req.body.dc_date && req.body.c_no && req.body.delivered_by && req.body.customer_receiver_name && req.body.attached_scanned_document && req.body.transport_amount && req.body.no_of_laptops && req.body.laptops)){
@@ -20,6 +20,9 @@ class dcController{
         else if(req.body.no_of_laptops==0){
             res.status(400).send({"status":"failed","message":"zero laptops is present in delivery challan.."})
         }
+        else if(!dcService.areAllElementsUnique(req.body.laptops)){
+            res.status(400).send({"status":"failed","message":"Given laptop serial no array contain atleast two equal laptops.."})
+        }
         else{
             let found=false;
             for (let i = 0; i < req.body.no_of_laptops; i++) {
@@ -34,7 +37,7 @@ class dcController{
                     break;
                 }
                 else if(!await dcService.checkLaptopAvalability(req.body.laptops[i])){
-                    res.status(400).send({"status":"failed","message":"laptop is not available to give.."})
+                    res.status(400).send({"status":"failed","message":"laptop is not available to give..","laptop":i+1})
                     found=true;                    
                     break;
                 }
@@ -57,10 +60,40 @@ class dcController{
                             message:"Database connection error"
                         })
                     }
-                    res.status(201).send({"status":"Success","message":"profile created...."})
+                    res.status(201).send({"status":"Success","message":"DC is created...."})
                 })  
             }    
         }
+    }
+    static addLaptopSNo=async(req,res)=>{
+        if(!(req.query.dc_challan_no &&req.query.laptop_serial_no)){
+            res.status(200).send({"status":"Failed","message":"Delivery Challan no. and laptop serial no needed...."})
+        }
+        else if(!await dcService.checkDCPresence(req.query.dc_challan_no)){
+            res.status(400).send({"status":"failed","message":"Given delivery challan(dc_challan_no)  is not present.."})
+        }
+        else if(await dcService.checkLaptopInDC(req.query.dc_challan_no,req.query.laptop_serial_no)){
+            res.status(400).send({"status":"failed","message":"Given Laptop is already present in delivery challan(dc_challan_no).."})
+        }
+        else if(!await dcService.checkLaptopAvalability(req.query.laptop_serial_no)){
+            res.status(400).send({"status":"failed","message":"laptop is not available to give.."})
+        }
+        else if((await dcService.checkLaptopStatus(req.query.laptop_serial_no))[0].laptop_status=="repair"){
+            res.status(400).send({"status":"failed","message":"laptop is in repairing process and not available to give.."})
+        } 
+        else{
+            dcService.addLaptopSNo(req.query.dc_challan_no,req.query.laptop_serial_no,(err,results)=>{
+                if(err){
+                    console.log(err)
+                    return res.status(403).json({
+                        success:0,
+                        message:"Database connection error",
+                        error:err.sqlMessage
+                    })
+                }
+                res.status(200).send({"status":"Success","message":"In Delivery Challan,Given Laptop(laptop_serial_no) is added...."})
+            })
+        }       
     }
     static update=async (req,res)=>{
         try {
@@ -136,7 +169,7 @@ class dcController{
             res.status(400).send({"status":"failed","message":"Given delivery challan(dc_challan_no)  is not present.."})
         }
         else if(!await dcService.checkLaptopInDC(req.query.dc_challan_no,req.query.laptop_serial_no)){
-            res.status(400).send({"status":"failed","message":"Given delivery challan(dc_challan_no)  is not present.."})
+            res.status(400).send({"status":"failed","message":"Given Laptop is not present in delivery challan(dc_challan_no).."})
         } 
         else{
             dcService.deleteLaptopSNo(req.query.dc_challan_no,req.query.laptop_serial_no,(err,results)=>{
@@ -149,39 +182,6 @@ class dcController{
                     })
                 }
                 res.status(200).send({"status":"Success","message":"In Delivery Challan,Given Laptop(laptop_serial_no) is deleted...."})
-            })
-        }             
-    }
-    static updateLaptopSNo=async (req,res)=>{ 
-        if(!(req.query.dc_challan_no && req.query.oldLaptop_serial_no && req.query.newLaptop_serial_no )){
-            res.status(200).send({"status":"Failed","message":"Delivery Challan no. and old and new laptop serial no. needs for identify which DC laptop need to be update ...."})
-        }
-        else if(!await dcService.checkDCPresence(req.query.dc_challan_no)){
-            res.status(400).send({"status":"failed","message":"Given delivery challan(dc_challan_no)  is not present.."})
-        }
-        else if(!await dcService.checkLaptopInDC(req.query.dc_challan_no,req.query.oldLaptop_serial_no)){
-            res.status(400).send({"status":"failed","message":"Given delivery challan(dc_challan_no)  is not present.."})
-        }
-        else if(!await dcService.checkLaptopPresence(req.query.newLaptop_serial_no)){
-            res.status(400).send({"status":"failed","message":"laptop(laptop serial no ) is not present in inventory...","laptop":i+1})    
-        }
-        else if(!await dcService.checkLaptopAvalability(req.query.newLaptop_serial_no)){
-            res.status(400).send({"status":"failed","message":"laptop is not available to give.."})    
-        }
-        else if((await dcService.checkLaptopStatus(req.query.newLaptop_serial_no))[0].laptop_status=="repair"){
-            res.status(400).send({"status":"failed","message":"laptop is in repairing process and not available to give..","laptop":i+1})
-        } 
-        else{
-            dcService.updateLaptopSNo(req.query.dc_challan_no,req.query.oldLaptop_serial_no,req.query.newLaptop_serial_no,(err,results)=>{
-                if(err){
-                    console.log(err)
-                    return res.status(403).json({
-                        success:0,
-                        message:"Database connection error",
-                        error:err.sqlMessage
-                    })
-                }
-                res.status(200).send({"status":"Success","message":"In Delivery Challan,Given Laptop(laptop_serial_no) is updated...."})
             })
         }             
     }
@@ -199,7 +199,7 @@ class dcController{
     }
     static getDetailDC=async (req,res)=>{
         if(!req.query.dc_challan_no){
-            res.status(200).send({"status":"Failed","message":"Delivery Challan no. needs for identify which DC need to be delete ...."})
+            res.status(200).send({"status":"Failed","message":"Delivery Challan no. needs for identify DC ...."})
         }
         else if(!await dcService.checkDCPresence(req.query.dc_challan_no)){
             res.status(400).send({"status":"failed","message":"Given delivery challan(dc_challan_no)  is not present.."})
