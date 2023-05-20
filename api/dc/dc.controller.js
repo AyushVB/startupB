@@ -21,7 +21,7 @@ class dcController{
             res.status(400).send({"status":"failed","message":"zero laptops is present in delivery challan.."})
         }
         else if(!dcService.areAllElementsUnique(req.body.laptops)){
-            res.status(400).send({"status":"failed","message":"Given laptop serial no array contain atleast two equal laptops.."})
+            res.status(400).send({"status":"failed","message":"Given laptop serial no. array contain atleast two equal laptops.."})
         }
         else{
             let found=false;
@@ -32,7 +32,7 @@ class dcController{
                     break;
                 }
                 else if(!await dcService.checkLaptopPresence(req.body.laptops[i])){
-                    res.status(400).send({"status":"failed","message":"laptop(laptop serial no ) is not present in inventory...","laptop":i+1})
+                    res.status(400).send({"status":"failed","message":"laptop(laptop serial no. ) is not present in inventory...","laptop":i+1})
                     found=true;                    
                     break;
                 }
@@ -67,7 +67,7 @@ class dcController{
     }
     static addLaptopSNo=async(req,res)=>{
         if(!(req.query.dc_challan_no &&req.query.laptop_serial_no)){
-            res.status(200).send({"status":"Failed","message":"Delivery Challan no. and laptop serial no needed...."})
+            res.status(200).send({"status":"Failed","message":"Delivery Challan no. and laptop serial no. needed...."})
         }
         else if(!await dcService.checkDCPresence(req.query.dc_challan_no)){
             res.status(400).send({"status":"failed","message":"Given delivery challan(dc_challan_no)  is not present.."})
@@ -163,7 +163,7 @@ class dcController{
     }
     static deleteLaptopSNo=async (req,res)=>{ 
         if(!(req.query.dc_challan_no &&req.query.laptop_serial_no)){
-            res.status(200).send({"status":"Failed","message":"Delivery Challan no. and laptop serial no needs for identify which DC laptop need to be delete ...."})
+            res.status(200).send({"status":"Failed","message":"Delivery Challan no. and laptop serial no. needs for identify which DC laptop need to be delete ...."})
         }
         else if(!await dcService.checkDCPresence(req.query.dc_challan_no)){
             res.status(400).send({"status":"failed","message":"Given delivery challan(dc_challan_no)  is not present.."})
@@ -194,7 +194,7 @@ class dcController{
                     error:err
                 })
             }
-            res.status(200).send({"status":"Success","no of results":results.length,"Delivery Challan":results})
+            res.status(200).send({"status":"Success","no. of results":results.length,"Delivery Challan":results})
         })       
     }
     static getDetailDC=async (req,res)=>{
@@ -247,7 +247,7 @@ class dcController{
                     error:err
                 })
             }
-            res.status(200).send({"status":"Success","no of results":results.length,"results":results})
+            res.status(200).send({"status":"Success","no. of results":results.length,"results":results})
         })        
     }
 }
