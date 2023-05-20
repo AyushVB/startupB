@@ -39,8 +39,8 @@ app.use('/api/inventory',inventoryRoutes)
 // LOAD DC routes
 app.use('/api/dc',dcRoutes)
 
-// // LOAD GNR routes
-// app.use('/api/gnr',GNRRoutes)
+// LOAD GNR routes
+app.use('/api/gnr',GNRRoutes)
 
 // // LOAD activityLog routes
 // app.use('/api/activityLog',activityLogRoutes)
