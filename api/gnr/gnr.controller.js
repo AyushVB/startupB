@@ -43,6 +43,8 @@ class gnrController{
                 }
                 else if((await gnrService.checkLaptopStatus(req.body.laptops[i].laptop_serial_no))[0].laptop_status=="repair"){
                     res.status(400).send({"status":"failed","message":"laptop is in repairing process .."})
+                    found=true;                    
+                    break;
                 }
             }
             if(!found){
