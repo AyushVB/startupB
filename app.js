@@ -7,7 +7,7 @@ import supplierRoutes from './api/supplier/supplier.routes.js'
 import supplierPurchaseOrderRoutes from './api/supplierPurchaseOrder/supplierPurchaseOrder.routes.js'
 import inventoryRoutes from './api/inventory/inventory.routes.js'
 import dcRoutes from './api/dc/dc.routes.js'
-// import GNRRoutes from './api/GNR/GNR.routes.js'
+import GNRRoutes from './api/GNR/GNR.routes.js'
 // import activityLogRoutes from './api/activityLog/activityLog.routes.js' 
 
 dotenv.config()
