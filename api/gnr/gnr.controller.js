@@ -41,8 +41,8 @@ class gnrController{
                     found=true;                    
                     break;
                 }
-                else if((await gnrService.checkLaptopStatus(req.body.laptops[i].laptop_serial_no))[0].laptop_status=="repair"){
-                    res.status(400).send({"status":"failed","message":"laptop is in repairing process .."})
+                else if((await gnrService.checkLaptopStatus(req.body.laptops[i]))[0].laptop_status=="repair"){
+                    res.status(400).send({"status":"failed","message":"laptop is in repairing process and not available to give..","laptop":i+1})
                     found=true;                    
                     break;
                 }
